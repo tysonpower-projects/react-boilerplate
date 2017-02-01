@@ -6,6 +6,18 @@ var express    = require('express');
 var bodyParser = require('body-parser');
 var app        = express();
 var morgan     = require('morgan');
+var admin 	= require("firebase-admin");
+
+admin.initializeApp({
+  credential: admin.credential.cert("prove-it-firebase-key.json"),
+  databaseURL: "https://prove-it-efbec.firebaseio.com"
+});
+//firebase-adminsdk-cpyy9@prove-it-efbec.iam.gserviceaccount.com
+
+var ref = admin.database().ref('people');
+var testRef = ref.child('test');
+
+
 
 // configure app
 app.use(morgan('dev')); // log requests to the console
@@ -15,10 +27,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 var port     = process.env.PORT || 8080; // set our port
-
-var mongoose   = require('mongoose');
-mongoose.connect('mongodb://node:node@novus.modulusmongo.net:27017/Iganiq8o'); // connect to our database
-var Bear     = require('./app/models/bear');
 
 // ROUTES FOR OUR API
 // =============================================================================
@@ -35,80 +43,65 @@ router.use(function(req, res, next) {
 
 // test route to make sure everything is working (accessed at GET http://localhost:8080/api)
 router.get('/', function(req, res) {
+
 	res.json({ message: 'hooray! welcome to our api!' });	
 });
 
 // on routes that end in /bears
 // ----------------------------------------------------
-router.route('/bears')
+router.route('/test')
 
 	// create a bear (accessed at POST http://localhost:8080/bears)
 	.post(function(req, res) {
-		
-		var bear = new Bear();		// create a new instance of the Bear model
-		bear.name = req.body.name;  // set the bears name (comes from the request)
-
-		bear.save(function(err) {
-			if (err)
-				res.send(err);
-
-			res.json({ message: 'Bear created!' });
-		});
-
-		
+		testRef.push({
+			name:"tyson",
+			admin:true,
+			count:1
+		})
+		res.json('pong');
+		res.json({ message: 'test!' });
 	})
 
 	// get all the bears (accessed at GET http://localhost:8080/api/bears)
 	.get(function(req, res) {
-		Bear.find(function(err, bears) {
-			if (err)
-				res.send(err);
+	
+			// Get a database reference to our posts
+			var db = admin.database();
+			var ref = db.ref("people");
 
-			res.json(bears);
-		});
+			// Attach an asynchronous callback to read the data at our posts reference
+			ref.on("child_added", function(snapshot) {
+			  	console.log(snapshot.val());
+			  	res.json(snapshot.val());
+			}, function (errorObject) {
+			  	console.log("The read failed: " + errorObject.code);
+			});
 	});
 
 // on routes that end in /bears/:bear_id
 // ----------------------------------------------------
-router.route('/bears/:bear_id')
+router.route('/test/:test_id')
 
 	// get the bear with that id
 	.get(function(req, res) {
-		Bear.findById(req.params.bear_id, function(err, bear) {
-			if (err)
-				res.send(err);
-			res.json(bear);
-		});
+		res.json('test');
 	})
 
 	// update the bear with this id
 	.put(function(req, res) {
-		Bear.findById(req.params.bear_id, function(err, bear) {
-
-			if (err)
-				res.send(err);
-
-			bear.name = req.body.name;
-			bear.save(function(err) {
-				if (err)
-					res.send(err);
-
-				res.json({ message: 'Bear updated!' });
-			});
-
-		});
+		testRef.push({
+			name:"tyson",
+			admin:true,
+			count:1
+		})
+		res.json('pong');
+		res.json({ message: 'test!' });	
 	})
 
 	// delete the bear with this id
 	.delete(function(req, res) {
-		Bear.remove({
-			_id: req.params.bear_id
-		}, function(err, bear) {
-			if (err)
-				res.send(err);
-
-			res.json({ message: 'Successfully deleted' });
-		});
+	
+		res.json({ message: 'test' });
 	});
 
 
