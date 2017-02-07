@@ -7,6 +7,10 @@ var bodyParser = require('body-parser');
 var app        = express();
 var morgan     = require('morgan');
 var admin 	= require("firebase-admin");
+var request = require('request');
+var cors 		= require('cors');
+
+app.use(cors())
 
 admin.initializeApp({
   credential: admin.credential.cert("prove-it-firebase-key.json"),
@@ -47,19 +51,37 @@ router.get('/', function(req, res) {
 	res.json({ message: 'hooray! welcome to our api!' });	
 });
 
+// test route to make sure everything is working (accessed at GET http://localhost:8080/api)
+router.get('/', function(req, res) {
+
+	res.sendFile(__dirname + '/index.html');	
+});
+
 // on routes that end in /bears
 // ----------------------------------------------------
-router.route('/test')
+router.route('/submit')
 
 	// create a bear (accessed at POST http://localhost:8080/bears)
 	.post(function(req, res) {
-		testRef.push({
-			name:"tyson",
-			admin:true,
-			count:1
-		})
-		res.json('pong');
-		res.json({ message: 'test!' });
+	  // g-recaptcha-response is the key that browser will generate upon form submit.
+		  // if its blank or null means user has not selected the captcha, so return the error.
+		  console.log(req.body.formData);
+		  if(req.body['g-recaptcha-response'] === undefined || req.body['g-recaptcha-response'] === '' || req.body['g-recaptcha-response'] === null) {
+		    return res.json({"responseCode" : 1,"responseDesc" : "Please select captcha"});
+		  }
+		  // Put your secret key here.
+		  var secretKey = "6Lf1DBQUAAAAADmykyLRyf_y1zsn51NVICoQmouO";
+		  // req.connection.remoteAddress will provide IP address of connected user.
+		  var verificationUrl = "https://www.google.com/recaptcha/api/siteverify?secret=" + secretKey + "&response=" + req.body['g-recaptcha-response'] + "&remoteip=" + req.connection.remoteAddress;
+		  // Hitting GET request to the URL, Google will respond with success or error scenario.
+		  request(verificationUrl,function(error,response,body) {
+		    body = JSON.parse(body);
+		    // Success will be true or false depending upon captcha validation.
+		    if(body.success !== undefined && !body.success) {
+		      return res.json({"responseCode" : 1,"responseDesc" : "Failed captcha verification"});
+		    }
+		    res.json({"responseCode" : 0,"responseDesc" : "Sucess"});
+		  });
 	})
 
 	// get all the bears (accessed at GET http://localhost:8080/api/bears)
@@ -106,7 +128,7 @@ router.route('/test/:test_id')
 
 
 // REGISTER OUR ROUTES -------------------------------
-app.use('/api', router);
+app.use('/', router);
 
 // START THE SERVER
 // =============================================================================
