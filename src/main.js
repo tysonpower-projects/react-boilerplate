@@ -27,3 +27,4 @@ ReactDOM.render((
   </Router>
 ), document.getElementById(DOM_APP_EL_ID));
 
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>

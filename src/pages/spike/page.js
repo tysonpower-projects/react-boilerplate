@@ -1,20 +1,26 @@
 import React from "react";
 import Request from 'superagent';
-
+import $ from 'jquery';
 export default class SpikePage extends React.Component {
 
   constructor() {
       super();
       this.state ={
         spike:{
-          time_created:''
+          time_created:'',
+        },
+        ip:'',
+        'captcha_data':{
+
         }
       };
 
-      //this.newSpike = this.newSpike.bind(this);
+      this._updateSpike = this._updateSpike.bind(this);
+      this._send = this._send.bind(this);
   }
 
   componentWillMount(){
+    var that = this;
     console.log('fetch..');
     console.log('id: ', this.props.params.id);
     var url = "http://localhost:8081/spike/" + this.props.params.id;
@@ -27,8 +33,62 @@ export default class SpikePage extends React.Component {
                 spike: spike[key]
             });
     });
+
+    $('#captcha').html('');
+    $.getScript("https://www.google.com/recaptcha/api.js");
+
+    var onloadCallback = function() {
+      alert("grecaptcha is ready!");
+    };
+
+    $.getJSON('//www.geoplugin.net/json.gp?jsoncallback=?', function(data) {
+      that.setState({
+          ip:data.geoplugin_request
+      });
+      console.log(JSON.stringify(data, null, 2));
+    });
+
+    var userAgent = window.navigator.userAgent;
+    console.log(userAgent);
   }
 
+  _send(e){
+    var that = this;
+    console.log('trigger');
+    e.stopPropagation();
+    var url = 'http://localhost:8081/submit';
+    var form = $("#comment_form").serialize();
+    console.log(form);
+    console.log("post..");
+    Request.post(url).send(form).end(function(err, res){
+         if (err || !res.ok) {
+           console.log('Oh no! error', err);
+         } else {
+           console.log('yay got ' + JSON.stringify(res.body));
+           that.setState({
+                captcha_data: res.body
+            });
+         }
+     });
+  }
+
+  _updateSpike(){
+    var url = 'http://localhost:8081/spike';
+    var data = this.state.spike;
+    console.log(data);
+    data.meta_data_collection = {
+      ip_address: this.state.ip
+    };
+    data.captcha_data = this.state.captcha_data;
+    console.log('data: ', data);
+    Request.put(url).send(data).end(function(err, res){
+         if (err || !res.ok) {
+           console.log('Oh no! error', err);
+         } else {
+           console.log('yay got ' + JSON.stringify(res.body));
+         }
+     });
+  }
 
   render() {
     return (
@@ -36,6 +96,11 @@ export default class SpikePage extends React.Component {
         <h1>Spike</h1>
         <p>passed in param: {this.props.params.id}</p>
         <p>Spike {this.state.spike.time_created}</p>
+        <form id="comment_form" >
+            <div id="captcha" className="g-recaptcha" data-sitekey="6Lf1DBQUAAAAAEyT-0q6g_w8tR8zqSKw1xoAbdFO"></div>
+            <div onClick={this._send.bind()}>Send Captcha</div>
+        </form>
+        <div onClick={this._updateSpike.bind()}>Update spike</div>
       </div>
     );
   }

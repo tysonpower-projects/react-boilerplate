@@ -81,25 +81,10 @@ router.route('/submit')
 		    if(body.success !== undefined && !body.success) {
 		      return res.json({"responseCode" : 1,"responseDesc" : "Failed captcha verification"});
 		    }
-		    res.json({"responseCode" : 0,"responseDesc" : "Sucess"});
+		    return res.json({"responseCode" : 0,"responseDesc" : "Sucess"});
 		  });
-	})
-
-	// get all the bears (accessed at GET http://localhost:8080/api/bears)
-	.get(function(req, res) {
-	
-			// Get a database reference to our posts
-			var db = admin.database();
-			var ref = db.ref("people");
-
-			// Attach an asynchronous callback to read the data at our posts reference
-			ref.on("child_added", function(snapshot) {
-			  	console.log(snapshot.val());
-			  	res.json(snapshot.val());
-			}, function (errorObject) {
-			  	console.log("The read failed: " + errorObject.code);
-			});
 	});
+
 
 	// on routes that end in /bears
 // ----------------------------------------------------
@@ -109,6 +94,13 @@ router.route('/spike')
 	  
 		res.json({"post" : true});
 
+	})
+
+	.put(function(req, res) {
+
+		//root.child('users').child(user.uid).child("username").setValue(newUsername.value);
+	  	console.log(req.body);
+		res.json({'put' : req.body});
 	})
 
 	// get all the bears (accessed at GET http://localhost:8080/api/bears)
