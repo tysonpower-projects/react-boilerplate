@@ -1,0 +1,60 @@
+:global(.gps_ring) {
+     border: 2px solid #fff;
+    -webkit-border-radius: 50%;
+    height: 18px;
+    width: 18px;
+    position: absolute;
+    left:20px;
+    top:214px;
+    -webkit-animation: pulsate 1s ease-out;
+    -webkit-animation-iteration-count: infinite; 
+    opacity: 0.0;
+}
+
+.gps_ring {
+    border: 2px solid #fff;
+    -webkit-border-radius: 50%;
+    height: 18px;
+    width: 18px;
+    position: absolute;
+    left:20px;
+    top:214px;
+    -webkit-animation: pulsate 1s ease-out;
+    -webkit-animation-iteration-count: infinite; 
+    opacity: 0.0;
+}
+.gps_ring:before {
+    content:"";
+    display:block;
+    border: 2px solid #fff;
+    -webkit-border-radius: 50%;
+    height: 30px;
+    width: 30px;
+    position: absolute;
+    left:-8px;
+    top:-8px;
+    -webkit-animation: pulsate 1s ease-out;
+    -webkit-animation-iteration-count: infinite; 
+    -webkit-animation-delay: 0.1s;
+    opacity: 0.0;
+}
+.gps_ring:after {
+    content:"";
+    display:block;
+    border:2px solid #fff;
+    -webkit-border-radius: 50%;
+    height: 50px;
+    width: 50px;
+    position: absolute;
+    left:-18px;
+    top:-18px;
+    -webkit-animation: pulsate 1s ease-out;
+    -webkit-animation-iteration-count: infinite; 
+    -webkit-animation-delay: 0.2s;
+    opacity: 0.0;
+}
+@-webkit-keyframes pulsate {
+    0% {-webkit-transform: scale(0.1, 0.1); opacity: 0.0;}
+    50% {opacity: 1.0;}
+    100% {-webkit-transform: scale(1.2, 1.2); opacity: 0.0;}
+}

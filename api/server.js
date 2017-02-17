@@ -60,14 +60,21 @@ router.get('/', function(req, res) {
 
 // on routes that end in /bears
 // ----------------------------------------------------
-router.route('/submit')
+router.route('/submit/:send_id')
 
 	// create a bear (accessed at POST http://localhost:8080/bears)
 	.post(function(req, res) {
+
+		var send_id = req.params.send_id;
+		var captcha_data;
+		console.log(send_id);
 	  // g-recaptcha-response is the key that browser will generate upon form submit.
 		  // if its blank or null means user has not selected the captcha, so return the error.
 		  console.log(req.body.formData);
 		  if(req.body['g-recaptcha-response'] === undefined || req.body['g-recaptcha-response'] === '' || req.body['g-recaptcha-response'] === null) {
+		  	captcha_data = false;
+	  		updateSpikeData(send_id, captcha_data);
+		    console.log(captcha_data);
 		    return res.json({"responseCode" : 1,"responseDesc" : "Please select captcha"});
 		  }
 		  // Put your secret key here.
@@ -77,14 +84,20 @@ router.route('/submit')
 		  // Hitting GET request to the URL, Google will respond with success or error scenario.
 		  request(verificationUrl,function(error,response,body) {
 		    body = JSON.parse(body);
+		    
 		    // Success will be true or false depending upon captcha validation.
 		    if(body.success !== undefined && !body.success) {
-		      return res.json({"responseCode" : 1,"responseDesc" : "Failed captcha verification"});
+		    	captcha_data = false;
+		    	updateSpikeData(send_id, captcha_data);
+		    	console.log(captcha_data);
+		      	return res.json({"responseCode" : 1,"responseDesc" : "Failed captcha verification"});
 		    }
+		    captcha_data = true;
+		    updateSpikeData(send_id, captcha_data);
+		    console.log(captcha_data);
 		    return res.json({"responseCode" : 0,"responseDesc" : "Sucess"});
 		  });
 	});
-
 
 	// on routes that end in /bears
 // ----------------------------------------------------
@@ -97,9 +110,8 @@ router.route('/spike')
 	})
 
 	.put(function(req, res) {
-
 		//root.child('users').child(user.uid).child("username").setValue(newUsername.value);
-	  	console.log(req.body);
+	  	console.log(req.body.meta_data_collection);
 		res.json({'put' : req.body});
 	})
 
@@ -120,6 +132,18 @@ router.route('/spike')
 
 // ----------------------------------------------------
 router.route('/spike/:send_id')
+
+	.put(function(req, res) {
+		console.log(req.body);
+
+		var send_id = req.params.send_id;
+		var meta_data = req.body.meta_data_collection;
+		updatMetaData(send_id, meta_data);
+		//root.child('users').child(user.uid).child("username").setValue(newUsername.value);
+	  	
+		res.json({'put' : req.body});
+	})
+
 	// get all the bears (accessed at GET http://localhost:8080/api/bears)
 	.get(function(req, res) {
 	
@@ -136,7 +160,7 @@ router.route('/spike/:send_id')
 		      		console.log(value);
 		      		res.json(value);
 		    	} 
-			});
+			});;
 });
 
 router.route('/view/:view_id')
@@ -261,3 +285,21 @@ function _smallid(){
 
     return id;
 }
+
+function updateSpikeData(send_id, captcha_data) {
+	var spike = admin.database().ref('spikes').child(send_id);
+	spike.update({
+	  captcha_data: captcha_data
+	});
+	console.log('firebase update', send_id);
+}	
+
+
+function updatMetaData(send_id, meta_data) {
+	var spike = admin.database().ref('spikes').child(send_id);
+	spike.update({
+	  meta_data_collection: meta_data
+	});
+	console.log('firebase update',send_id);
+	console.log('meta_data', meta_data);
+}	

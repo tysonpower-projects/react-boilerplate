@@ -9,6 +9,7 @@ export default class SpikePage extends React.Component {
         spike:{
           time_created:'',
         },
+        key:'',
         ip:'',
         'captcha_data':{
 
@@ -30,7 +31,8 @@ export default class SpikePage extends React.Component {
         console.log('spike response: ');
         console.log(spike[key]);
         this.setState({
-                spike: spike[key]
+                spike: spike[key],
+                key: key
             });
     });
 
@@ -56,7 +58,7 @@ export default class SpikePage extends React.Component {
     var that = this;
     console.log('trigger');
     e.stopPropagation();
-    var url = 'http://localhost:8081/submit';
+    var url = 'http://localhost:8081/submit/' + this.state.key;
     var form = $("#comment_form").serialize();
     console.log(form);
     console.log("post..");
@@ -73,7 +75,7 @@ export default class SpikePage extends React.Component {
   }
 
   _updateSpike(){
-    var url = 'http://localhost:8081/spike';
+    var url = 'http://localhost:8081/spike/' + this.state.key;
     var data = this.state.spike;
     console.log(data);
     data.meta_data_collection = {
@@ -93,14 +95,31 @@ export default class SpikePage extends React.Component {
   render() {
     return (
       <div>
-        <h1>Spike</h1>
+        <div className="row">
+          <div className="col-md-12">
+               <div className="jumbotron"> 
+                  <div id="jumbo-home" className="jumbotron-photo">
+                  <img className="jumob-image" src="http://www.shximai.com/data/out/73/66974857-flat-wallpapers.jpg"/>
+                  </div>
+                </div>
+            </div>
+        </div>
+        <section id="captcha-section">
+          <div className="row">
+            <div className="col-md-4"></div>
+            <div className="col-md-5">
+               <form id="comment_form" >
+                  <div id="captcha" className="g-recaptcha" data-sitekey="6Lf1DBQUAAAAAEyT-0q6g_w8tR8zqSKw1xoAbdFO"></div>
+                  <div onClick={this._send.bind()} hidden>Send Captcha</div>
+              </form>
+            </div>
+            <div className="col-md-3"></div>
+          </div>
+        </section>
         <p>passed in param: {this.props.params.id}</p>
         <p>Spike {this.state.spike.time_created}</p>
-        <form id="comment_form" >
-            <div id="captcha" className="g-recaptcha" data-sitekey="6Lf1DBQUAAAAAEyT-0q6g_w8tR8zqSKw1xoAbdFO"></div>
-            <div onClick={this._send.bind()}>Send Captcha</div>
-        </form>
-        <div onClick={this._updateSpike.bind()}>Update spike</div>
+        <p>firebase key <div id="key">{this.state.key}</div></p>
+        <div onClick={this._updateSpike.bind()} hidden>Update spike</div>
       </div>
     );
   }

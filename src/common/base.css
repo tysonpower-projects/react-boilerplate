@@ -6,8 +6,9 @@ body {
   margin: 0;
   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
   font-weight: 300;
-  background-color: #f1f1f1;
+  background-color: rgb(241, 242, 246) !important;
 }
+
 
 h1 {
   margin: 0;
@@ -16,6 +17,7 @@ h1 {
 
 :global(#container) {
   width: 100%;
+
 
   @media (min-width: 960px) {
     width: 960px;
