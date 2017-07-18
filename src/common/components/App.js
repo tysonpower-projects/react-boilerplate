@@ -13,11 +13,11 @@ export default ({children}) => {
 		                <span className="icon-bar"></span>
 		                <span className="icon-bar"></span>
 		                </button>
-		                <a className="navbar-brand" href="#">Project - Einstine</a>
+		                <a className="navbar-brand" href="/">Project - Einstine</a>
 		            </div>
 		            <div className="collapse navbar-collapse" id="bs-example-navbar-collapse-5">
 		                <ul className="nav navbar-nav">
-		                    <li className="active"><a href="#">Sample Page</a></li>
+		                    <li className="active"><a href="/sample/1234">Sample Page</a></li>
 		                </ul>
 		                <form className="navbar-form navbar-right" role="search">
 		                    <div className="form-search search-only">
